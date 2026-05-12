@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lifestream-bridge
+  namespace: billing
+  labels:
+    app: lifestream-bridge
+    version: "1.0"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: lifestream-bridge
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: lifestream-bridge
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/api/health"
+    spec:
+      terminationGracePeriodSeconds: 30
+      initContainers:
+        - name: migrate
+          image: registry.example.com/lifestream-bridge:latest
+          imagePullPolicy: Always
+          command: ["php", "artisan", "migrate", "--force"]
+          envFrom:
+            - configMapRef:
+                name: lifestream-bridge-config
+            - secretRef:
+                name: lifestream-bridge-secrets
+      containers:
+        - name: lifestream-bridge
+          image: registry.example.com/lifestream-bridge:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: lifestream-bridge-config
+            - secretRef:
+                name: lifestream-bridge-secrets
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "512Mi"
+          volumeMounts:
+            - name: storage
+              mountPath: /app/storage
+      volumes:
+        - name: storage
+          emptyDir: {}
+      imagePullSecrets:
+        - name: registry-credentials

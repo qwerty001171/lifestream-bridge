@@ -1,0 +1,108 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: lifestream-bridge:local
+    container_name: lifestream-bridge-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+      - /app/vendor
+      - storage_data:/app/storage
+    depends_on:
+      mysql_new:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - billing-net
+
+  mysql:
+    image: mysql:8.0
+    container_name: lifestream-bridge-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: billing_service
+      MYSQL_USER: billing
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: rootsecret
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - billing-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "billing", "-psecret"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql_new:
+    image: mysql:8.0
+    container_name: lifestream-bridge-mysql-new
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: billing_service
+      MYSQL_USER: billing
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: rootsecret
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data_new:/var/lib/mysql
+    networks:
+      - billing-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "billing", "-psecret"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  billing-mock:
+    build:
+      context: .
+      dockerfile: billing-mock/Dockerfile
+    container_name: lifestream-bridge-mock
+    restart: unless-stopped
+    environment:
+      PORT: "8081"
+      API_KEY: "test-key-a"
+      REGION: "region_a"
+      TOTAL: "5"
+    ports:
+      - "8081:8081"
+    networks:
+      - billing-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: lifestream-bridge-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - billing-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql_data:
+  mysql_data_new:
+  redis_data:
+  storage_data:
+
+networks:
+  billing-net:
+    driver: bridge

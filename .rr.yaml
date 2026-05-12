@@ -1,0 +1,35 @@
+version: "3"
+
+rpc:
+  listen: tcp://127.0.0.1:6001
+
+server:
+  command: "vendor/bin/roadrunner-worker"
+  relay: pipes
+
+http:
+  address: 0.0.0.0:8080
+  pool:
+    num_workers: 4
+    max_jobs: 64
+  middleware:
+    - gzip
+    - static
+
+jobs:
+  pool:
+    num_workers: 2
+
+cron:
+  - every: "5m"
+    command: "php artisan billing:sync-all"
+  - every: "10m"
+    command: "php artisan lifestream:sync-all"
+  - every: "15m"
+    command: "php artisan billing:sync-passwords-all"
+
+logs:
+  mode: production
+  level: warn
+  encoding: json
+  output: stdout

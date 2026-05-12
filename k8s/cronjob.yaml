@@ -1,0 +1,91 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: billing-sync
+  namespace: billing
+  labels:
+    app: lifestream-bridge
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: registry-credentials
+          containers:
+            - name: billing-sync
+              image: registry.example.com/lifestream-bridge:latest
+              imagePullPolicy: Always
+              command: ["php", "artisan", "billing:sync-all"]
+              envFrom:
+                - configMapRef:
+                    name: lifestream-bridge-config
+                - secretRef:
+                    name: lifestream-bridge-secrets
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: lifestream-sync
+  namespace: billing
+  labels:
+    app: lifestream-bridge
+spec:
+  schedule: "*/10 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: registry-credentials
+          containers:
+            - name: lifestream-sync
+              image: registry.example.com/lifestream-bridge:latest
+              imagePullPolicy: Always
+              command: ["php", "artisan", "lifestream:sync-all"]
+              envFrom:
+                - configMapRef:
+                    name: lifestream-bridge-config
+                - secretRef:
+                    name: lifestream-bridge-secrets
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: password-sync
+  namespace: billing
+  labels:
+    app: lifestream-bridge
+spec:
+  schedule: "*/15 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: registry-credentials
+          containers:
+            - name: password-sync
+              image: registry.example.com/lifestream-bridge:latest
+              imagePullPolicy: Always
+              command: ["php", "artisan", "billing:sync-passwords-all"]
+              envFrom:
+                - configMapRef:
+                    name: lifestream-bridge-config
+                - secretRef:
+                    name: lifestream-bridge-secrets
