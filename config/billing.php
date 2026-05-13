@@ -8,15 +8,15 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'regions' => [
+    'sources' => [
         'region_a' => [
-            'base_url' => env('BILLING_REGION_A_URL', 'http://billing-a.local/api'),
-            'api_key'  => env('BILLING_REGION_A_KEY', ''),
+            'base_url' => env('BILLING_SOURCE_A_URL', 'http://billing-a.local/api'),
+            'api_key'  => env('BILLING_SOURCE_A_KEY', ''),
             'timeout'  => 30,
         ],
         'region_b' => [
-            'base_url' => env('BILLING_REGION_B_URL', 'http://billing-b.local/api'),
-            'api_key'  => env('BILLING_REGION_B_KEY', ''),
+            'base_url' => env('BILLING_SOURCE_B_URL', 'http://billing-b.local/api'),
+            'api_key'  => env('BILLING_SOURCE_B_KEY', ''),
             'timeout'  => 30,
         ],
     ],

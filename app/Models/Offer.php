@@ -37,9 +37,9 @@ class Offer extends Model
         return $query->where('is_active', true);
     }
 
-    public function scopeForRegion($query, string $region)
+    public function scopeForSource($query, string $source)
     {
-        return $query->where('billing_source', $region);
+        return $query->where('billing_source', $source);
     }
 
     public static function findLifestreamOfferId(string $billingSource, string $packageCode): ?string

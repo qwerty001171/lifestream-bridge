@@ -15,15 +15,15 @@ class AccountSyncService
         private readonly OperationLogger $logger
     ) {}
 
-    public function sync(BillingFetcher $fetcher, string $region): array
+    public function sync(BillingFetcher $fetcher, string $source): array
     {
         $synced = 0;
         $failed = 0;
 
         foreach ($fetcher->fetchAll() as $row) {
             try {
-                DB::transaction(function () use ($row, $region, &$synced) {
-                    $this->upsertAccount($row, $region);
+                DB::transaction(function () use ($row, $source, &$synced) {
+                    $this->upsertAccount($row, $source);
                     $synced++;
                 });
             } catch (Throwable $e) {
@@ -32,7 +32,7 @@ class AccountSyncService
                 $externalId = $this->extractExternalId($row);
 
                 Log::error('AccountSyncService: failed to upsert account', [
-                    'region'      => $region,
+                    'source'      => $source,
                     'external_id' => $externalId,
                     'error'       => $e->getMessage(),
                 ]);
@@ -40,7 +40,7 @@ class AccountSyncService
                 $this->logger->log(
                     operationType: OperationLog::TYPE_SYNC_MAIN_BILLING,
                     result:        OperationLog::RESULT_FAILED,
-                    billingSource: $region,
+                    billingSource: $source,
                     data:          ['external_id' => $externalId],
                     errorMessage:  $e->getMessage()
                 );
@@ -50,12 +50,12 @@ class AccountSyncService
         $this->logger->log(
             operationType: OperationLog::TYPE_SYNC_MAIN_BILLING,
             result:        OperationLog::RESULT_SUCCESS,
-            billingSource: $region,
+            billingSource: $source,
             data:          ['synced' => $synced, 'failed' => $failed]
         );
 
         Log::info('AccountSyncService: sync completed', [
-            'region' => $region,
+            'source' => $source,
             'synced' => $synced,
             'failed' => $failed,
         ]);
@@ -63,7 +63,7 @@ class AccountSyncService
         return compact('synced', 'failed');
     }
 
-    private function upsertAccount(array $row, string $region): Account
+    private function upsertAccount(array $row, string $source): Account
     {
         $user = $row['User'] ?? $row;
         $main = $row['Main'] ?? [];
@@ -84,7 +84,7 @@ class AccountSyncService
         $account = Account::updateOrCreate(
             [
                 'external_id'    => $externalId,
-                'billing_source' => $region,
+                'billing_source' => $source,
             ],
             [
                 'login'          => $login,

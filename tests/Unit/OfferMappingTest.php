@@ -78,7 +78,7 @@ class OfferMappingTest extends TestCase
         ]);
     }
 
-    public function test_scope_for_region_filters_correctly(): void
+    public function test_scope_for_source_filters_correctly(): void
     {
         Offer::create([
             'billing_source'       => 'region_a',
@@ -93,8 +93,8 @@ class OfferMappingTest extends TestCase
             'is_active'            => true,
         ]);
 
-        $regionAOffers = Offer::forRegion('region_a')->get();
-        $regionBOffers = Offer::forRegion('region_b')->get();
+        $regionAOffers = Offer::forSource('region_a')->get();
+        $regionBOffers = Offer::forSource('region_b')->get();
 
         $this->assertCount(1, $regionAOffers);
         $this->assertCount(1, $regionBOffers);

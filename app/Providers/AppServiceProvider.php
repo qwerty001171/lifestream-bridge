@@ -4,10 +4,12 @@ namespace App\Providers;
 
 use App\Contracts\BillingAdapterInterface;
 use App\Contracts\LifestreamClientInterface;
-use App\Adapters\HttpBillingAdapter;
-use App\Http\Clients\HttpLifestreamClient;
+use App\Http\Clients\LifestreamClientAdapter;
 use App\Services\BillingAdapterFactory;
 use App\Services\OperationLogger;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -17,37 +19,43 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(LifestreamClientInterface::class, function ($app) {
             $config = config('lifestream');
 
-            return new HttpLifestreamClient(
-                baseUrl:    $config['base_url'],
-                timeout:    $config['timeout'] ?? 30,
-                retries:    $config['retries'] ?? 3,
-                retryDelay: $config['retry_delay'] ?? 500,
-                rateLimit:  $config['rate_limit'] ?? 10,
+            return new LifestreamClientAdapter(
+                baseUrl:   $config['base_url'],
+                timeout:   $config['timeout'] ?? 30,
+                retries:   $config['retries'] ?? 3,
+                rateLimit: $config['rate_limit'] ?? 10,
             );
         });
 
         $this->app->singleton(BillingAdapterFactory::class, function ($app) {
             return new BillingAdapterFactory(
-                regionsConfig: config('billing.regions', [])
+                sourcesConfig: config('billing.sources', [])
             );
         });
 
         $this->app->bind(BillingAdapterInterface::class, function ($app) {
             $factory = $app->make(BillingAdapterFactory::class);
 
-            $regions = $factory->availableRegions();
+            $sources = $factory->availableSources();
 
-            if (empty($regions)) {
-                throw new \RuntimeException('No billing regions are configured.');
+            if (empty($sources)) {
+                throw new \RuntimeException('No billing sources are configured.');
             }
 
-            return $factory->make($regions[0]);
+            return $factory->make($sources[0]);
         });
 
         $this->app->singleton(OperationLogger::class);
+
+        if ($this->app->environment('local') && class_exists(\Laravel\Boost\BoostServiceProvider::class)) {
+            $this->app->register(\Laravel\Boost\BoostServiceProvider::class);
+        }
     }
 
     public function boot(): void
     {
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)->by($request->ip());
+        });
     }
 }

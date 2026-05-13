@@ -34,7 +34,7 @@
 
 ```bash
 cp .env.example .env
-# Заполнить: LIFESTREAM_URL, BILLING_REGION_A_URL, BILLING_REGION_A_KEY
+# Заполнить: LIFESTREAM_URL, BILLING_SOURCE_A_URL, BILLING_SOURCE_A_KEY
 
 docker compose up -d --build
 ```
@@ -65,8 +65,8 @@ curl http://localhost:8080/api/health
 | `LIFESTREAM_TIMEOUT` | Таймаут запросов в секундах (по умолчанию `30`) |
 | `LIFESTREAM_RETRIES` | Повторных попыток при ошибке (по умолчанию `3`) |
 | `BILLING_PAGE_LIMIT` | Размер страницы при опросе биллинга (по умолчанию `1000`) |
-| `BILLING_REGION_A_URL` | URL API биллинга региона A |
-| `BILLING_REGION_A_KEY` | API-ключ биллинга региона A |
+| `BILLING_SOURCE_A_URL` | URL API биллинга региона A |
+| `BILLING_SOURCE_A_KEY` | API-ключ биллинга региона A |
 
 > **Аутентификация к Lifestream** — по IP-адресу (whitelist). API-ключ не нужен.
 > Сообщите менеджеру Lifestream внешний IP сервера — без этого запросы вернут 403.
@@ -144,15 +144,15 @@ docker compose run --no-deps --entrypoint sh app -c "composer dump-autoload -q &
 
 **1. `.env`:**
 ```dotenv
-BILLING_REGION_B_URL=http://billing-node-b.example.com/api
-BILLING_REGION_B_KEY=secret-key-b
+BILLING_SOURCE_B_URL=http://billing-node-b.example.com/api
+BILLING_SOURCE_B_KEY=secret-key-b
 ```
 
 **2. `config/billing.php`:**
 ```php
 'region_b' => [
-    'base_url' => env('BILLING_REGION_B_URL', ''),
-    'api_key'  => env('BILLING_REGION_B_KEY', ''),
+    'base_url' => env('BILLING_SOURCE_B_URL', ''),
+    'api_key'  => env('BILLING_SOURCE_B_KEY', ''),
     'timeout'  => 30,
 ],
 ```
@@ -187,9 +187,9 @@ php artisan migrate --force
 
 **Lifestream возвращает 403** — IP сервера не в белом списке Lifestream. Сообщите менеджеру по интеграции текущий внешний IP контейнера.
 
-**`billing:sync` падает с ошибкой соединения** — проверить `BILLING_REGION_A_URL` и доступность биллинга:
+**`billing:sync` падает с ошибкой соединения** — проверить `BILLING_SOURCE_A_URL` и доступность биллинга:
 ```bash
-docker compose exec app curl $BILLING_REGION_A_URL/users -H "X-API-Key: $BILLING_REGION_A_KEY"
+docker compose exec app curl $BILLING_SOURCE_A_URL/users -H "X-API-Key: $BILLING_SOURCE_A_KEY"
 ```
 
 **Расследование инцидентов** — таблица `lifestream_operation_logs`: все операции с типом, результатом и текстом ошибки.

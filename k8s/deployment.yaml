@@ -44,6 +44,9 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
+          env:
+            - name: MIGRATE_ON_STARTUP
+              value: "false"
           envFrom:
             - configMapRef:
                 name: lifestream-bridge-config

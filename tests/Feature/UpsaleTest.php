@@ -58,10 +58,8 @@ class UpsaleTest extends TestCase
 
     public function test_add_subscription_ensure_returns_no_action_required_for_active_subscription(): void
     {
-        // Pre-create active subscription
         \App\Models\Subscription::create([
             'account_uuid'        => $this->account->uuid,
-            'billing_source'      => 'region_a',
             'lifestream_offer_id' => 'offer-basic',
             'status'              => \App\Models\Subscription::STATUS_ACTIVE,
             'started_at'          => now(),
@@ -97,7 +95,6 @@ class UpsaleTest extends TestCase
 
     public function test_add_subscription_commit_returns_operation_commited(): void
     {
-        // First ensure
         $ensureResponse = $this->postJson(
             '/api/upsale/v3/add-subscription/ensure?' . http_build_query([
                 'accountId'       => 'ls-user-abc',
@@ -109,7 +106,6 @@ class UpsaleTest extends TestCase
         $ensureResponse->assertStatus(200);
         $billingTxId = $ensureResponse->json('billingTransactionId');
 
-        // Then commit
         $commitResponse = $this->postJson(
             '/api/upsale/v3/add-subscription/commit?' . http_build_query([
                 'accountId'              => 'ls-user-abc',
@@ -128,10 +124,8 @@ class UpsaleTest extends TestCase
 
     public function test_add_subscription_commit_returns_409_when_transaction_failed(): void
     {
-        // Create a failed transaction directly
         $transaction = Transaction::create([
             'account_uuid'        => $this->account->uuid,
-            'billing_source'      => 'region_a',
             'lifestream_offer_id' => 'offer-x',
             'operation_type'      => Transaction::OPERATION_ADD_SUBSCRIPTION,
             'phase'               => Transaction::PHASE_FAILED,
@@ -199,7 +193,6 @@ class UpsaleTest extends TestCase
 
     public function test_replace_subscription_full_flow(): void
     {
-        // Ensure
         $ensureResponse = $this->postJson(
             '/api/upsale/v3/replace-subscription/ensure?' . http_build_query([
                 'accountId'       => 'ls-user-abc',
@@ -214,7 +207,6 @@ class UpsaleTest extends TestCase
 
         $billingTxId = $ensureResponse->json('billingTransactionId');
 
-        // Commit
         $commitResponse = $this->postJson(
             '/api/upsale/v3/replace-subscription/commit?' . http_build_query([
                 'accountId'            => 'ls-user-abc',
@@ -255,7 +247,6 @@ class UpsaleTest extends TestCase
     {
         \App\Models\Subscription::create([
             'account_uuid'        => $this->account->uuid,
-            'billing_source'      => 'region_a',
             'lifestream_offer_id' => '5010',
             'status'              => \App\Models\Subscription::STATUS_ACTIVE,
             'started_at'          => now(),

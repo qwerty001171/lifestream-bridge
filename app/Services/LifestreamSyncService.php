@@ -19,17 +19,17 @@ class LifestreamSyncService
         private readonly OperationLogger $logger
     ) {}
 
-    public function syncRegion(string $region): array
+    public function syncSource(string $source): array
     {
         $synced  = 0;
         $skipped = 0;
         $failed  = 0;
 
-        Account::where('billing_source', $region)
-            ->chunkById(100, function ($accounts) use ($region, &$synced, &$skipped, &$failed) {
+        Account::where('billing_source', $source)
+            ->chunkById(100, function ($accounts) use ($source, &$synced, &$skipped, &$failed) {
                 foreach ($accounts as $account) {
                     try {
-                        $result = $this->syncAccount($account, $region);
+                        $result = $this->syncAccount($account, $source);
 
                         if ($result === 'skipped') {
                             $skipped++;
@@ -40,27 +40,27 @@ class LifestreamSyncService
                         $failed++;
                         Log::error('LifestreamSyncService: failed to sync account', [
                             'account_uuid' => $account->uuid,
-                            'region'     => $region,
-                            'error'      => $e->getMessage(),
+                            'source'       => $source,
+                            'error'        => $e->getMessage(),
                         ]);
 
                         $this->logger->log(
                             operationType: OperationLog::TYPE_SYNC_LIFESTREAM,
                             result:        OperationLog::RESULT_FAILED,
                             accountId:     $account->uuid,
-                            billingSource: $region,
+                            billingSource: $source,
                             errorMessage:  $e->getMessage()
                         );
                     }
                 }
             });
 
-        Log::info('LifestreamSyncService: region sync completed', compact('region', 'synced', 'skipped', 'failed'));
+        Log::info('LifestreamSyncService: source sync completed', compact('source', 'synced', 'skipped', 'failed'));
 
         return compact('synced', 'skipped', 'failed');
     }
 
-    private function syncAccount(Account $account, string $region): string
+    private function syncAccount(Account $account, string $source): string
     {
         $lifestreamId = $account->lifestream_id;
 
@@ -88,11 +88,10 @@ class LifestreamSyncService
         $targetOfferId = null;
 
         if (!empty($account->paket)) {
-            $targetOfferId = Offer::findLifestreamOfferId($region, (string) $account->paket);
+            $targetOfferId = Offer::findLifestreamOfferId($source, (string) $account->paket);
         }
 
         $activeSubscriptions = Subscription::where('account_uuid', $account->uuid)
-            ->where('billing_source', $region)
             ->where('status', Subscription::STATUS_ACTIVE)
             ->get();
 
@@ -116,13 +115,12 @@ class LifestreamSyncService
             }
         }
 
-        DB::transaction(function () use ($account, $region, $lifestreamId, $targetOfferId, $deactivatedOfferIds): void {
+        DB::transaction(function () use ($account, $source, $lifestreamId, $targetOfferId, $deactivatedOfferIds): void {
             $account->lifestream_id = $lifestreamId;
             $account->save();
 
             if (!empty($deactivatedOfferIds)) {
                 Subscription::where('account_uuid', $account->uuid)
-                    ->where('billing_source', $region)
                     ->whereIn('lifestream_offer_id', $deactivatedOfferIds)
                     ->update(['status' => Subscription::STATUS_INACTIVE]);
             }
@@ -131,7 +129,6 @@ class LifestreamSyncService
                 Subscription::updateOrCreate(
                     [
                         'account_uuid'        => $account->uuid,
-                        'billing_source'      => $region,
                         'lifestream_offer_id' => $targetOfferId,
                     ],
                     [
@@ -164,7 +161,7 @@ class LifestreamSyncService
                 operationType: OperationLog::TYPE_SYNC_LIFESTREAM,
                 result:        empty($deactivatedOfferIds) ? OperationLog::RESULT_SKIPPED : OperationLog::RESULT_SUCCESS,
                 accountId:     $account->uuid,
-                billingSource: $region,
+                billingSource: $source,
                 data:          $logData
             );
 
@@ -175,7 +172,7 @@ class LifestreamSyncService
             operationType: OperationLog::TYPE_SYNC_LIFESTREAM,
             result:        OperationLog::RESULT_SUCCESS,
             accountId:     $account->uuid,
-            billingSource: $region,
+            billingSource: $source,
             data:          $logData
         );
 

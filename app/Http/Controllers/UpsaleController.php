@@ -9,6 +9,7 @@ use App\Http\Requests\UpsaleEnsureRequest;
 use App\Models\Transaction;
 use App\Services\UpsaleService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class UpsaleController extends Controller
@@ -181,6 +182,13 @@ class UpsaleController extends Controller
 
     private function errorResponse(Throwable $e): JsonResponse
     {
-        return response()->json(['error' => 'Operation failed: ' . $e->getMessage()], 500);
+        Log::error('UpsaleController: unhandled exception', [
+            'exception' => get_class($e),
+            'message'   => $e->getMessage(),
+            'file'      => $e->getFile(),
+            'line'      => $e->getLine(),
+        ]);
+
+        return response()->json(['error' => 'Internal server error'], 500);
     }
 }

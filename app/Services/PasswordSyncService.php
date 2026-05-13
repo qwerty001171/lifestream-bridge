@@ -17,13 +17,13 @@ class PasswordSyncService
         private readonly BillingAdapterFactory $adapterFactory
     ) {}
 
-    public function syncPasswords(string $region): array
+    public function syncPasswords(string $source): array
     {
         $updated = 0;
         $skipped = 0;
         $failed  = 0;
 
-        $adapter = $this->adapterFactory->make($region);
+        $adapter = $this->adapterFactory->make($source);
         $fetcher = new BillingFetcher($adapter, config('billing.page_limit', 1000));
 
         foreach ($fetcher->fetchAll() as $row) {
@@ -33,7 +33,7 @@ class PasswordSyncService
 
             try {
                 $account = Account::where('external_id', $externalId)
-                    ->where('billing_source', $region)
+                    ->where('billing_source', $source)
                     ->first();
 
                 if ($account === null || empty($account->lifestream_id)) {
@@ -67,7 +67,7 @@ class PasswordSyncService
                     operationType: OperationLog::TYPE_PASSWORD_SYNC,
                     result:        OperationLog::RESULT_SUCCESS,
                     accountId:     $account->uuid,
-                    billingSource: $region,
+                    billingSource: $source,
                     data:          ['external_id' => $externalId]
                 );
 
@@ -75,7 +75,7 @@ class PasswordSyncService
             } catch (Throwable $e) {
                 $failed++;
                 Log::error('PasswordSyncService: failed', [
-                    'region'      => $region,
+                    'source'      => $source,
                     'external_id' => $externalId,
                     'error'       => $e->getMessage(),
                 ]);
@@ -84,14 +84,14 @@ class PasswordSyncService
                     operationType: OperationLog::TYPE_PASSWORD_SYNC,
                     result:        OperationLog::RESULT_FAILED,
                     accountId:     isset($account) ? $account->uuid : null,
-                    billingSource: $region,
+                    billingSource: $source,
                     data:          ['external_id' => $externalId],
                     errorMessage:  $e->getMessage()
                 );
             }
         }
 
-        Log::info('PasswordSyncService: completed', compact('region', 'updated', 'skipped', 'failed'));
+        Log::info('PasswordSyncService: completed', compact('source', 'updated', 'skipped', 'failed'));
 
         return compact('updated', 'skipped', 'failed');
     }

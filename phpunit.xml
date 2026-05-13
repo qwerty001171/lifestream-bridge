@@ -26,10 +26,10 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="LIFESTREAM_URL" value="http://lifestream.test"/>
         <env name="LIFESTREAM_KEY" value="test-key"/>
-        <env name="BILLING_REGION_A_URL" value="http://billing-a.test"/>
-        <env name="BILLING_REGION_A_KEY" value="test-key-a"/>
-        <env name="BILLING_REGION_B_URL" value="http://billing-b.test"/>
-        <env name="BILLING_REGION_B_KEY" value="test-key-b"/>
+        <env name="BILLING_SOURCE_A_URL" value="http://billing-a.test"/>
+        <env name="BILLING_SOURCE_A_KEY" value="test-key-a"/>
+        <env name="BILLING_SOURCE_B_URL" value="http://billing-b.test"/>
+        <env name="BILLING_SOURCE_B_KEY" value="test-key-b"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>

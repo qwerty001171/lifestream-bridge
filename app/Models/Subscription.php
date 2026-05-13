@@ -21,7 +21,6 @@ class Subscription extends Model
 
     protected $fillable = [
         'account_uuid',
-        'billing_source',
         'lifestream_offer_id',
         'status',
         'auto_renewal',
@@ -45,11 +44,6 @@ class Subscription extends Model
     public function scopeActive($query)
     {
         return $query->where('status', self::STATUS_ACTIVE);
-    }
-
-    public function scopeForRegion($query, string $region)
-    {
-        return $query->where('billing_source', $region);
     }
 
     public function isActive(): bool

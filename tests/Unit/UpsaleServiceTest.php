@@ -71,7 +71,6 @@ class UpsaleServiceTest extends TestCase
 
         Subscription::create([
             'account_uuid'        => $account->uuid,
-            'billing_source'      => 'region_a',
             'lifestream_offer_id' => 'offer-premium',
             'status'              => Subscription::STATUS_ACTIVE,
             'started_at'          => now(),
@@ -233,7 +232,6 @@ class UpsaleServiceTest extends TestCase
         // Existing active subscription for old offer
         Subscription::create([
             'account_uuid'        => $account->uuid,
-            'billing_source'      => 'region_a',
             'lifestream_offer_id' => 'offer-old',
             'status'              => Subscription::STATUS_ACTIVE,
             'started_at'          => now()->subMonth(),

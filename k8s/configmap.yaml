@@ -33,7 +33,7 @@ data:
   LIFESTREAM_RETRIES: "3"
   LIFESTREAM_RETRY_DELAY: "500"
 
-  BILLING_REGION_A_URL: "http://billing-a.isp.internal/api"
-  BILLING_REGION_B_URL: "http://billing-b.isp.internal/api"
+  BILLING_SOURCE_A_URL: "http://billing-a.isp.internal/api"
+  BILLING_SOURCE_B_URL: "http://billing-b.isp.internal/api"
 
   BILLING_PAGE_LIMIT: "1000"

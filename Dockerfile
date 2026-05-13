@@ -1,4 +1,4 @@
-FROM php:8.2-cli-alpine AS base
+FROM php:8.4-cli-alpine AS base
 
 RUN apk add --no-cache \
     linux-headers \
@@ -12,13 +12,24 @@ RUN apk add --no-cache \
     && docker-php-ext-enable redis \
     && rm -rf /tmp/pear
 
-# Install RoadRunner (architecture-aware)
 FROM base AS rr-downloader
 ARG TARGETARCH
 RUN ARCH=$([ "$TARGETARCH" = "arm64" ] && echo "linux-arm64" || echo "linux-amd64") && \
     RR_VERSION="2025.1.13" && \
     curl -L "https://github.com/roadrunner-server/roadrunner/releases/download/v${RR_VERSION}/roadrunner-${RR_VERSION}-${ARCH}.tar.gz" \
     | tar -xz --strip-components=1 -C /usr/local/bin "roadrunner-${RR_VERSION}-${ARCH}/rr"
+
+FROM base AS codegen
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+RUN composer install --no-interaction --no-scripts
+
+COPY .jane-openapi.php lifestream-api.yaml ./
+RUN vendor/bin/jane-openapi generate
 
 FROM base AS builder
 
@@ -30,8 +41,8 @@ COPY composer.json composer.lock ./
 RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
 
 COPY . .
+COPY --from=codegen /app/app/Lifestream ./app/Lifestream
 
-# Generate autoload only — artisan cache commands require DB and .env, run at container start
 RUN composer dump-autoload --optimize --no-dev
 
 FROM base AS production

@@ -12,7 +12,7 @@ class SyncBillingAllCommand extends Command
 {
     protected $signature = 'billing:sync-all';
 
-    protected $description = 'Sync accounts from all configured billing regions';
+    protected $description = 'Sync accounts from all configured billing sources';
 
     public function __construct(
         private readonly BillingAdapterFactory $factory,
@@ -23,26 +23,26 @@ class SyncBillingAllCommand extends Command
 
     public function handle(): int
     {
-        $regions    = $this->factory->availableRegions();
+        $sources    = $this->factory->availableSources();
         $exitCode   = self::SUCCESS;
 
-        $this->info('Starting billing sync for all regions: ' . implode(', ', $regions));
+        $this->info('Starting billing sync for all sources: ' . implode(', ', $sources));
 
-        foreach ($regions as $region) {
-            $this->line("  Syncing region: {$region}");
+        foreach ($sources as $source) {
+            $this->line("  Syncing source: {$source}");
 
             try {
-                $adapter = $this->factory->make($region);
+                $adapter = $this->factory->make($source);
                 $fetcher = new BillingFetcher($adapter, config('billing.page_limit', 1000));
-                $result  = $this->syncService->sync($fetcher, $region);
+                $result  = $this->syncService->sync($fetcher, $source);
 
-                $this->info("  [{$region}] Done: {$result['synced']} synced, {$result['failed']} failed.");
+                $this->info("  [{$source}] Done: {$result['synced']} synced, {$result['failed']} failed.");
 
                 if ($result['failed'] > 0) {
                     $exitCode = self::FAILURE;
                 }
             } catch (Throwable $e) {
-                $this->error("  [{$region}] Failed: " . $e->getMessage());
+                $this->error("  [{$source}] Failed: " . $e->getMessage());
                 $exitCode = self::FAILURE;
             }
         }

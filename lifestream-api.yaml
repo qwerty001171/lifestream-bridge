@@ -1,0 +1,722 @@
+openapi: 3.0.0
+info:
+  title: Интеграция биллинга с TV-платформой
+  version: '1.0'
+  description: |
+    Спецификация содержит описание запросов от биллинга к TV платформе, необходимых
+    для добавление учетных записей для пользователей и включения/выключения услуг
+    по инициативе биллинга. Адрес для доступа необходимо получить у менеджера по
+    интеграции. Для взаимодействия через публичную сеть необходимо использовать
+    протокол HTTPS.
+
+    ## Аутентификация
+
+    Аутентификация запросов к API производится по списку разрешённых IP-адресов
+    источника обращений. Взаимодействие с сервисом будет разрешено только с
+    определённых конфигурацией сервиса IP-адресов. В ином случае будет возвращён
+    ответ о запрете доступа с кодом 403 «Forbidden».
+
+    ## Идентификация учетных записей
+
+    В запросах на получение/изменение/удаление аккаунта или сброс пароля параметр `{id}` - это идентификатор пользователя.
+
+    В зависимости от настроек операторской панели, это может быть либо
+    внутренний идентификатор пользователя на стороне TV платформы, который возвращается в результате запроса
+    регистрации (далее - `accountId`, он имеет вид `5964c533098f6b6123456789`), либо логином пользователя, переданным при регистрации (далее - `username`).
+    По умолчанию для обращений на стороне TV-платформы используется `accountId`. Изменение идентификатора
+    обращений на `username` производится менеджером по интеграции по запросу оператора.
+
+    --------------
+
+  contact:
+   name: Подробное руководство по интеграции в PDF можно загрузить по ссылке
+   url: "https://drive.google.com/drive/folders/0Bx1EWp2ALkwSS3pvQmdpUG5uZ1U?resourcekey=0-hZXEJFgVoi4weLxcV37lSQ&usp=share_link"
+
+paths:
+  /v2/accounts:
+    get:
+      summary: Получение списка пользователей
+      description: >
+        Рекомендуется использовать этот метод для проведения синхронизации баз
+        ОП и биллинга - сверки пользователей и покупок. Период синхронизации
+        может совпадать с периодом списаний или же проводиться 1-3 раза в сутки.
+      tags:
+        - Accounts
+      parameters:
+        - name: page_size
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: page_num
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Получен список пользователей
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountsPag'
+        '400':
+          description: Неправильный запрос
+        '403':
+          description: Доступ запрещён
+        '404':
+          description: Ресурс не найден
+        '500':
+          description: Внутренняя ошибка сервиса
+    post:
+      summary: Регистрация пользователя
+      description: >
+        Метод предоставляет интерфейс для создания пользователей на стороне ТВ платформы Лайфстрим
+      tags:
+        - Accounts
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+              properties:
+                username:
+                  type: string
+                  pattern: ^([a-zA-Z0-9_@\\.\\+\\-\\//]+)$
+                  minLength: 1
+                  maxLength: 100
+                  example: username
+                  description: Имя пользователя. Используется при авторизации
+                email:
+                  type: string
+                  pattern: ^.+@[^.].*\.[a-z]{2,10}$
+                  minLength: 1
+                  maxLength: 100
+                  example: user@email.ru
+                  description: >
+                    Адрес электронной почты пользователя. Email необходимо передавать в запросе в нижнем регистре. Если адрес пользователя неизвестен - нужно обратиться в Лайфстрим,  согласовать формат шаблона для почтового домена (обычно используется формат <user_id>@<provider_subdomain>.users-mail.lfstrm.tv), и передавать его при создании пользователей.
+                password:
+                  type: string
+                  minLength: 5
+                  maxLength: 100
+                  description: >-
+                    Пароль. Если пароль не передан, то он генерируется
+                    автоматически
+                  example: password
+                purchases:
+                  type: array
+                  items:
+                    type: string
+                  description: >-
+                    Массив с идентификаторами подписок. Если передан, то вместе
+                    с пользователем создаются соответствующие подписки
+                  example:
+                    - 100
+                    - 101
+                region:
+                  type: string
+                  pattern: ^([a-z0-9]+)$
+                  description: >-
+                    Регион пользователя. Если не передан, то используется
+                    глобальная настройка по умолчанию
+                  example: ru.siberia.khakassia-rep
+                info:
+                  type: object
+                  description: Любая дополнительная информация о пользователе
+                  example:
+                    fio: Иванов Иван Иванович
+                    operator: Пример-Интернет-Связь
+      responses:
+        '200':
+          description: >
+            Результат запроса.
+
+            **\"created\": true** в ответе означает регистрацию нового
+            пользователя в операторской панели.
+
+            **\"created\": false** - переданный в запросе username уже
+            существует в базе Лайфстрим и уже привязан к вашей операторской
+            панели, или находится в архиве.
+
+            Если аккаунт находился в архиве, то в результате запроса он
+            мигрирует в вашу операторскую панель
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountId'
+        '400':
+          description: >
+            Неправильный запрос. Ошибка возвращается c параметром **\"error\"**
+            : **\"Bad Request\"**при некорректно указанных данных в теле запроса
+            или c параметром  **\"error\"** : **\"Users exists and belongs to
+            other provider\"**, если пользователь с переданным значением
+            username уже существует в базе Лайфстрим  и привязан к операторской
+            панели другого провайдера
+        '403':
+          description: Доступ запрещён
+        '404':
+          description: Ресурс не найден
+        '500':
+          description: Внутренняя ошибка сервиса
+  /v2/accounts/{id}:
+    get:
+      summary: Получение данных пользователя
+      description: >
+        Метод для получения полной информации об аккаунте пользователя по его идентификатору
+      tags:
+        - Accounts
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Получены данные пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Неправильный запрос
+        '403':
+          description: Доступ запрещён
+        '404':
+          description: Ресурс не найден
+        '500':
+          description: Внутренняя ошибка сервиса
+    delete:
+      summary: Удаление пользователя
+      description: >
+        Полного удаления пользователя НЕ происходит. Пользователь приобретает
+        статус «не активен» и переносится из ОП в архив. Доступ к услуге
+        ограничивается, подключение пакетов каналов и иные операции с
+        пользователем становятся недоступны. В случае отправки запросов по
+        удалённому пользователю будет возвращён ответ о запрете доступа с кодом
+        403 «Forbidden».
+      tags:
+        - Accounts
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Пользователь удален
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDel'
+        '400':
+          description: Неправильный запрос
+        '403':
+          description: Доступ запрещён
+        '404':
+          description: Ресурс не найден
+        '500':
+          description: Внутренняя ошибка сервиса
+  /v2/accounts/{id}/update:
+    post:
+      summary: Обновление данных пользователя
+      description: >
+        Позволяет обновить регион пользователя и содержание блока “info”.
+
+        Изменение email производится только через веб-интерфейс ОП.
+      tags:
+        - Accounts
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                region:
+                  type: string
+                  pattern: ^([a-z0-9]+)$
+                  description: >-
+                    Регион пользователя. Если не передан, то используется
+                    глобальная настройка по умолчанию
+                  example: ru.siberia.khakassia-rep
+                info:
+                  type: object
+                  description: Любая дополнительная информация о пользователе
+                  example:
+                    fio: Иванов Иван Иванович
+                    operator: Пример-Интернет-Связь
+      responses:
+        '200':
+          description: Данные пользователя обновлены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountInfo'
+        '400':
+          description: >
+            Неправильный запрос. Ошибка возвращается c параметром **\"error\"**
+            : **\"Bad Request\"**при некорректно указанных данных в теле запроса
+            или c параметром  **\"error\"** : **\"Region is not valid\"**, если
+            в запросе неверно указан регион
+        '403':
+          description: Доступ запрещён
+        '404':
+          description: Ресурс не найден
+        '500':
+          description: Внутренняя ошибка сервиса
+  /v2/accounts/{id}/reset-password:
+    post:
+      summary: Сброс пароля пользователя
+      description: >
+        Метод позволяет сбросить пароль пользователя.
+        Если пароль пользователя задаётся на стороне биллинга, то в настройках
+        ОП должна быть выставлена настройка «Автоматическая генерация пароля» и
+        тело запроса должно содержать "password": "значение".
+
+        Если необходимо автоматически сгенерировать пароль на стороне Лайфстрим
+        или отправить на email ссылку на сброс и задание пароля, то в настройках
+        ОП нужно выбрать/снять настройку “Автоматическая генерация пароля” и
+        тело запроса должно быть пустым.
+      tags:
+        - Accounts
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  minLength: 5
+                  maxLength: 100
+                  description: >-
+                    Пароль. Если пароль не передан, то он генерируется
+                    автоматически
+                  example: password
+      responses:
+        '200':
+          description: Пароль изменен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetPass'
+        '400':
+          description: Неправильный запрос
+        '403':
+          description: Доступ запрещён
+        '404':
+          description: Ресурс не найден
+        '500':
+          description: Внутренняя ошибка сервиса
+  /v2/accounts/{id}/subscriptions:
+    get:
+      summary: Получение списка активных подписок пользователя
+      description: >
+        Метод возвращает список активных подписок пользователя.
+        В запросах на управление подписками используются идентификаторы пакетов каналов, которые устанавливает Лайфстрим и может их изменить по запросу
+        оператора.
+      tags:
+        - Subscriptions
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Получен список подписок пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountSubs'
+        '400':
+          description: Неправильный запрос
+        '403':
+          description: Доступ запрещён
+        '404':
+          description: Ресурс не найден
+        '500':
+          description: Внутренняя ошибка сервиса
+    post:
+      summary: Добавление или удаление подписок
+      description: >
+        Метод позволяет включить и(или) отключить подписку для пользователя.
+      tags:
+        - Subscriptions
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - id
+                - valid
+              properties:
+                id:
+                  type: string
+                  example: 102
+                  description: Идентификатор подписки
+                valid:
+                  type: boolean
+                  example: true
+                  description: true - активировать подписку, false - удалить
+      responses:
+        '200':
+          description: >
+            Результат запроса. **\"valid\" : true** в теле ответа означает
+            успешное добавление подписки пользователю или то, что данная
+            подписка уже подключена у пользователя.  **\"valid\" : false**
+            возвращается при успешном отключении подписки или при попытке отключения неподключенной подписки.
+            При попытке подключения несуществующей подписки вернется пустое тело **{}**.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountAddSub'
+        '400':
+          description: >
+            Ошибка возвращается c параметром **\"error\"** : **\"Bad
+            Request\"**при некорректно указанных данных в теле запроса или c
+            параметром  **\"error\"** : **\"HTTP 400: 4006:
+            ValidationErrIsArchived\"** при попытке подключения архивной
+            подписки
+        '403':
+          description: Доступ запрещён
+        '404':
+          description: Ресурс не найден
+        '500':
+          description: Внутренняя ошибка сервиса
+  /accounts/v3/{accountId}/account-state:
+    post:
+      tags:
+        - Account-state
+      summary: Передача текущего состояния счета абонента в биллинге
+      description: >
+        Метод принимает текущее состояние счета абонента и статус услуг.
+        Успешное выполнение запроса означает, что для абонента установлен новый
+        целевой статус. Приведение фактического статуса учётной записи к
+        целевому значению может происходить с некоторой задержкой.
+
+        Чтобы обеспечить абонентов максимально актуальной информацией о
+        состоянии счёта, данный метод рекомендуется вызывать при каждом
+        изменении состояния счёта. В порядке приоритета это следующие события:
+          * изменение статуса учётной записи (переход в состояние добровольной
+            или принудительной блокировки услуг, выход из этого состояния)
+          * списания, связанные с активными действиями абонента
+          * пополнение баланса лицевого счёта
+          * регулярные списания абонентской платы, не приводящие к изменению
+            статуса учётной записи
+
+        Во избежание накопления ошибок рекомендуется раз в сутки в фоновом
+        режиме выполнять синхронизацию состояния счёта для всех учётных записей,
+        зарегистрированных на платформе. В рамках такой массовой синхронизации
+        очень желательно все запросы отправлять последовательно через одно
+        TCP-соединение, используя механизм HTTP keep-alive.
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: >
+            Идентификатор абонента, который используетя для управления
+            подписками.
+
+            В зависимости от настроек интеграции это может быть логин или
+
+            идентификатор акаунта на платформе.
+        - name: delayed
+          in: query
+          schema:
+            type: boolean
+          description: >
+            Данный параметр необходимо добавлять в URL при массовом обновлении
+
+            статуса абонентов, например при ночной ресинхронизации. Значение
+            `true`
+
+            означает, что запрос не привязан к моменту изменения статуса и не
+
+            требует срочной обработки.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountState'
+      responses:
+        '200':
+          description: Для учётной записи абонента установлен новый целевой статус
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '400':
+          description: Ошибка в переданных данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '500':
+          description: >
+            Внутренная ошибка платформы, для синхронизации статуса требуется
+            отправить
+
+            запрос еще раз. Если ошибка повторяется, нужно обратиться в
+            техподдержку.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+components:
+  parameters:
+    Id:
+      name: Id
+      description: ID аккаунта на стороне ТВ-платформы
+      in: path
+      required: true
+      schema:
+        type: string
+        example: 1234567890abcdef12345678
+  schemas:
+    AccountsPag:
+      type: object
+      properties:
+        accounts:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: 561b9d36910955327d00001c
+              username:
+                type: string
+                example: username
+              email:
+                type: string
+                example: user@email.ru
+              created:
+                type: string
+                example: '2018-02-13 18:12:21.528000+03:00'
+              updated:
+                type: string
+                example: '2018-02-16 13:21:21.855000+03:00'
+              is_blocked:
+                type: boolean
+                example: true
+              region:
+                type: string
+                example: ru.north-west.karelia-rep
+              subscriptions:
+                type: array
+                items:
+                  type: string
+                  example:
+                    - id: '100'
+                    - id: '102'
+              info:
+                type: object
+                example:
+                  comments: Yablochnaya str.
+                  fio: Иванов Иван Иванович
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+              example: 0
+            page_size:
+              type: integer
+              example: 100
+            pages:
+              type: integer
+              example: 10
+            total:
+              type: integer
+              example: 1000
+    Account:
+      type: object
+      properties:
+        accounts:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: 561b9d36910955327d00001c
+              username:
+                type: string
+                example: username
+              email:
+                type: string
+                example: user@email.ru
+              created:
+                type: string
+                example: '2018-02-13 18:12:21.528000+03:00'
+              updated:
+                type: string
+                example: '2018-02-16 13:21:21.855000+03:00'
+              is_blocked:
+                type: boolean
+                example: true
+              region:
+                type: string
+                example: ru.north-west.karelia-rep
+              subscriptions:
+                type: array
+                items:
+                  type: string
+                  example:
+                    - id: '100'
+                    - id: '102'
+              info:
+                type: object
+                example:
+                  comments: Yablochnaya str.
+                  fio: Иванов Иван Иванович
+    AccountInfo:
+      type: object
+      properties:
+        region:
+          type: string
+          example: ru.north-west.karelia-rep
+        info:
+          type: object
+          example:
+            comments: Yablochnaya str.
+            fio: Иванов Иван Иванович
+    ResetPass:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 5964c533098f6b6123456789
+        created:
+          type: string
+          example: ok
+    AccountId:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 5964c533098f6b6123456789
+        created:
+          type: boolean
+          example: true
+    AccountDel:
+      type: object
+      properties:
+        deleted:
+          type: boolean
+          example: true
+    AccountSubs:
+      type: array
+      items:
+        type: string
+        example:
+          - id: '100'
+          - id: '102'
+    AccountAddSub:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 100
+        valid:
+          type: boolean
+          example: true
+    AccountState:
+      type: object
+      properties:
+        balance:
+          type: integer
+          description: |
+            Баланс лицевого счёта абонента в копейках. Может быть отрицательным.
+        status:
+          type: string
+          description: |
+            Текущий статус аккаунта.
+            Может принимать следующие значения:
+            * `active` - аккаунт активен, услуги предоставляются в полном объёме
+            * `suspended_no_funds` - блокировка по причине нехватки средств
+            * `suspended_manually` - добровольная блокировка абонентом
+              (например на время отпуска)
+            * `other` - иная причина блокировки
+          enum:
+            - active
+            - suspended_no_funds
+            - suspended_manually
+            - other
+        tvSuspended:
+          type: boolean
+          description: |
+            Флаг о состоянии TV услуги:
+            * `true` - услуга предоставляется
+            * `false` - услуга заблокирована, причина блокировки в поле status
+            При значении `tvSuspended = true` поле `status` не может содержать
+            значение `active`. Возможность покупки подписок из приложения при
+            таком значении блокируется, а причина недоступности контента
+            объясняется пользователю в соответствии с полем `status`
+        recommendedRefill:
+          type: integer
+          description: |
+            Рекомендуемая сумма пополнения лицевого счёта в копейках. Если
+            аккаунт заблокирован, то передаётся сумма пополнения, необходимая
+            для разблокировки. Для активного аккаунта может использоваться с
+            целью предупреждения абонента о нехватке средств для очередного
+            списания абонентской платы.
+        stateTimestamp:
+          type: integer
+          description: |
+            Временная метка, соответствующая моменту актуальности переданного
+            состояния.
+
+            Передается как timestamp с начала Unix эпохи в миллисекундах, не
+            зависит о часового пояса.
+
+            Для данного поля действуют следующие правила и органичения:
+
+            * Запрос игнорируется, если переданное в `stateTimestamp`
+              значение меньше или равно значению из другого запроса,
+              уже обработонного платформой ранее. Это позволяет избежать
+              зависимости финального состояния от порядка выполнения запросов.
+            * Запрос может вернуть ошибку, если `stateTimestamp` отстает от
+              стандартного мирового времени на 2 часа или более. Это сделано
+              для упрощения обнаружения ошибки в вычислении передаваемого
+              времени, которая могла бы привести к отсутствию ожидаемых
+              обновлений статуса.
+            * Запрос может вернуть ошибку, если `stateTimestamp` опережает
+              стандартное мировое время на 10 минут или более. Это необходимо
+              чтобы избежать игнорирования обновлений статуса в результате
+              одного ошибочно отправленного значения из будущего.
+        lastChangeTimestamp:
+          type: integer
+          description: |
+            Время, начиная с которого присланный статус стал актуальным.
+            Передается как timestamp с начала Unix эпохи в миллисекундах.
+      required:
+        - balance
+        - status
+        - tvSuspended
+        - stateTimestamp
+    error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Идентификатор ошибки.
+        message:
+          type: string
+          description: Сообщение об ошибке.
+        details:
+          type: object
+          description: |
+            Детальные сведения об ошибке. Например, может содержать
+            поля, которые не прошли валидацию.
+      required:
+        - code
+        - message

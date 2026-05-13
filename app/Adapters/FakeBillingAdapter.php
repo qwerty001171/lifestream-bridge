@@ -7,7 +7,7 @@ use App\Contracts\BillingAdapterInterface;
 class FakeBillingAdapter implements BillingAdapterInterface
 {
     public function __construct(
-        private readonly string $region,
+        private readonly string $source,
         private readonly array $pages = []
     ) {}
 
@@ -31,9 +31,9 @@ class FakeBillingAdapter implements BillingAdapterInterface
         ];
     }
 
-    public function getRegion(): string
+    public function getSource(): string
     {
-        return $this->region;
+        return $this->source;
     }
 
     public function totalUsers(): int

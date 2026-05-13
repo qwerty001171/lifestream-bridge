@@ -11,7 +11,7 @@ class SyncPasswordsAllCommand extends Command
 {
     protected $signature = 'billing:sync-passwords-all';
 
-    protected $description = 'Sync password changes from all billing regions to Lifestream';
+    protected $description = 'Sync password changes from all billing sources to Lifestream';
 
     public function __construct(
         private readonly BillingAdapterFactory $factory,
@@ -22,19 +22,19 @@ class SyncPasswordsAllCommand extends Command
 
     public function handle(): int
     {
-        $regions  = $this->factory->availableRegions();
+        $sources  = $this->factory->availableSources();
         $exitCode = self::SUCCESS;
 
-        $this->info('Starting password sync for all regions: ' . implode(', ', $regions));
+        $this->info('Starting password sync for all sources: ' . implode(', ', $sources));
 
-        foreach ($regions as $region) {
-            $this->line("  Syncing region: {$region}");
+        foreach ($sources as $source) {
+            $this->line("  Syncing source: {$source}");
 
             try {
-                $result = $this->passwordSyncService->syncPasswords($region);
+                $result = $this->passwordSyncService->syncPasswords($source);
 
                 $this->info(
-                    "  [{$region}] Done: " .
+                    "  [{$source}] Done: " .
                     "{$result['updated']} updated, {$result['skipped']} skipped, {$result['failed']} failed."
                 );
 
@@ -42,7 +42,7 @@ class SyncPasswordsAllCommand extends Command
                     $exitCode = self::FAILURE;
                 }
             } catch (Throwable $e) {
-                $this->error("  [{$region}] Failed: " . $e->getMessage());
+                $this->error("  [{$source}] Failed: " . $e->getMessage());
                 $exitCode = self::FAILURE;
             }
         }

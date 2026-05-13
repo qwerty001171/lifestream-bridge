@@ -8,7 +8,7 @@ use Throwable;
 
 class SyncPasswordsCommand extends Command
 {
-    protected $signature = 'billing:sync-passwords {region : The billing region to sync passwords for}';
+    protected $signature = 'billing:sync-passwords {source : The billing source to sync passwords for}';
 
     protected $description = 'Detect password changes in billing and push them to Lifestream';
 
@@ -20,12 +20,12 @@ class SyncPasswordsCommand extends Command
 
     public function handle(): int
     {
-        $region = $this->argument('region');
+        $source = $this->argument('source');
 
-        $this->info("Starting password sync for region: {$region}");
+        $this->info("Starting password sync for source: {$source}");
 
         try {
-            $result = $this->passwordSyncService->syncPasswords($region);
+            $result = $this->passwordSyncService->syncPasswords($source);
 
             $this->info(
                 "Password sync completed: " .

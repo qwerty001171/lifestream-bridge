@@ -1,0 +1,615 @@
+{
+    "data": {
+        "users": [
+            {
+                "User": {
+                    "id": "10020",
+                    "mid": "4542",
+                    "name": "dc21dkab_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:ab:a3",
+                    "paket": "22",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 3 Family (до 100 Мбит\/с)",
+                    "final_balance": false,
+                    "luhn": "100203",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "22",
+                    "email": null,
+                    "mac": "6c:4c:bc:05:62:5f"
+                }
+            },
+            {
+                "User": {
+                    "id": "22370",
+                    "mid": "22294",
+                    "name": "nv05eram_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:9d:6b",
+                    "paket": "6",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 1 Family (до 60 Мбит\/с) ",
+                    "final_balance": false,
+                    "luhn": "223704",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "6",
+                    "email": null,
+                    "mac": "c8:3a:35:38:49:80"
+                }
+            },
+            {
+                "User": {
+                    "id": "22495",
+                    "mid": "22494",
+                    "name": "nv07eker_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:73:a0",
+                    "paket": "6",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 1 Family (до 60 Мбит\/с) ",
+                    "final_balance": false,
+                    "luhn": "224952",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "6",
+                    "email": null,
+                    "mac": "1c:61:b4:7a:91:21"
+                }
+            },
+            {
+                "User": {
+                    "id": "22722",
+                    "mid": "22690",
+                    "name": "nv12etur_iptv",
+                    "email": null,
+                    "mac": "1c:a0:ef:d8:30:4c",
+                    "paket": "6",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 1 Family (до 60 Мбит\/с) ",
+                    "final_balance": false,
+                    "luhn": "227225",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "6",
+                    "email": null,
+                    "mac": "00:30:67:de:cd:2a"
+                }
+            },
+            {
+                "User": {
+                    "id": "22852",
+                    "mid": "22804",
+                    "name": "nv14esel_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:7f:7b",
+                    "paket": "7",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 2 Family (до 80 Мбит\/с)",
+                    "final_balance": false,
+                    "luhn": "228529",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "7",
+                    "email": null,
+                    "mac": "a0:f3:c1:35:90:d7"
+                }
+            },
+            {
+                "User": {
+                    "id": "22854",
+                    "mid": "22790",
+                    "name": "nv14ekar_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:58:44",
+                    "paket": "7",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 2 Family (до 80 Мбит\/с)",
+                    "final_balance": false,
+                    "luhn": "228541",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "7",
+                    "email": null,
+                    "mac": "00:1c:c0:0d:f4:8c"
+                }
+            },
+            {
+                "User": {
+                    "id": "23082",
+                    "mid": "23075",
+                    "name": "nv17eosm_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:a0:79",
+                    "paket": "6",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 1 Family (до 60 Мбит\/с) ",
+                    "final_balance": false,
+                    "luhn": "230825",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "6",
+                    "email": null,
+                    "mac": "04:b1:67:47:75:3a"
+                }
+            },
+            {
+                "User": {
+                    "id": "23106",
+                    "mid": "23105",
+                    "name": "nv17ever_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:87:6f",
+                    "paket": "250",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "TVIN Bronze (до 3 Мбит\/с)",
+                    "final_balance": false,
+                    "luhn": "231062",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "250",
+                    "email": null,
+                    "mac": "60:e3:27:ab:e8:7d"
+                }
+            },
+            {
+                "User": {
+                    "id": "23345",
+                    "mid": "23146",
+                    "name": "nv21eche_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:97:6b",
+                    "paket": "6",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 1 Family (до 60 Мбит\/с) ",
+                    "final_balance": false,
+                    "luhn": "233457",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "6",
+                    "email": null,
+                    "mac": "00:e0:4d:4e:9c:06"
+                }
+            },
+            {
+                "User": {
+                    "id": "23400",
+                    "mid": "0",
+                    "name": "nv22este_iptv",
+                    "email": null,
+                    "mac": "1c:a0:ef:d8:05:69",
+                    "paket": "1035",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "MegaHOME",
+                    "final_balance": false,
+                    "luhn": "234009",
+                    "address_full": ""
+                },
+                "Main": {
+                    "id": "23400",
+                    "mid": "0",
+                    "name": "nv22este_iptv",
+                    "email": null,
+                    "mac": "1c:a0:ef:d8:05:69",
+                    "paket": "1035",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "MegaHOME",
+                    "final_balance": false,
+                    "luhn": "234009",
+                    "address_full": ""
+                }
+            },
+            {
+                "User": {
+                    "id": "23470",
+                    "mid": "23381",
+                    "name": "nv23egon_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:68:9c",
+                    "paket": "7",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 2 Family (до 80 Мбит\/с)",
+                    "final_balance": false,
+                    "luhn": "234706",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "7",
+                    "email": null,
+                    "mac": "84:16:f9:d1:db:eb"
+                }
+            },
+            {
+                "User": {
+                    "id": "23690",
+                    "mid": "23606",
+                    "name": "nv26edar_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:97:4a",
+                    "paket": "7",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 2 Family (до 80 Мбит\/с)",
+                    "final_balance": false,
+                    "luhn": "236900",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "7",
+                    "email": null,
+                    "mac": "0c:ef:15:34:57:c3"
+                }
+            },
+            {
+                "User": {
+                    "id": "23698",
+                    "mid": "23629",
+                    "name": "nv26eser_iptv",
+                    "email": null,
+                    "mac": "1c:a0:ef:d8:3c:3f",
+                    "paket": "6",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 1 Family (до 60 Мбит\/с) ",
+                    "final_balance": false,
+                    "luhn": "236988",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "6",
+                    "email": null,
+                    "mac": "e8:94:f6:a2:b1:0d"
+                }
+            },
+            {
+                "User": {
+                    "id": "23711",
+                    "mid": "6794",
+                    "name": "nv26ebek_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:57:2c",
+                    "paket": "7",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 2 Family (до 80 Мбит\/с)",
+                    "final_balance": false,
+                    "luhn": "237114",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "7",
+                    "email": null,
+                    "mac": "00:26:18:5f:94:2e"
+                }
+            },
+            {
+                "User": {
+                    "id": "23798",
+                    "mid": "23657",
+                    "name": "swap-23798",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:63:c1",
+                    "paket": "6",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 1 Family (до 60 Мбит\/с) ",
+                    "final_balance": false,
+                    "luhn": "237989",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "6",
+                    "email": null,
+                    "mac": "50:91:e3:d6:92:a6"
+                }
+            },
+            {
+                "User": {
+                    "id": "24170",
+                    "mid": "2911",
+                    "name": "dc03ezub_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:aa:09",
+                    "paket": "22",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 3 Family (до 100 Мбит\/с)",
+                    "final_balance": false,
+                    "luhn": "241704",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "22",
+                    "email": null,
+                    "mac": "90:9a:4a:da:39:ab"
+                }
+            },
+            {
+                "User": {
+                    "id": "24663",
+                    "mid": "12958",
+                    "name": "dc07eger_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:4a:95",
+                    "paket": "237",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "TVIN Silver ( до 30 Мбит\/с)",
+                    "final_balance": false,
+                    "luhn": "246631",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "237",
+                    "email": "",
+                    "mac": "e8:94:f6:39:2a:81"
+                }
+            },
+            {
+                "User": {
+                    "id": "24699",
+                    "mid": "24587",
+                    "name": "dc08epan_iptv",
+                    "email": null,
+                    "mac": "1c:a0:ef:d8:29:77",
+                    "paket": "7",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 2 Family (до 80 Мбит\/с)",
+                    "final_balance": false,
+                    "luhn": "246990",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "7",
+                    "email": null,
+                    "mac": "b8:86:87:5e:37:bb"
+                }
+            },
+            {
+                "User": {
+                    "id": "24726",
+                    "mid": "24320",
+                    "name": "dc08evol_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:65:ae",
+                    "paket": "6",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 1 Family (до 60 Мбит\/с) ",
+                    "final_balance": false,
+                    "luhn": "247261",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "6",
+                    "email": null,
+                    "mac": "48:22:54:93:10:b8"
+                }
+            },
+            {
+                "User": {
+                    "id": "25069",
+                    "mid": "5323",
+                    "name": "dc12ebah_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:65:ec",
+                    "paket": "7",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 2 Family (до 80 Мбит\/с)",
+                    "final_balance": false,
+                    "luhn": "250692",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "7",
+                    "email": null,
+                    "mac": ""
+                }
+            },
+            {
+                "User": {
+                    "id": "25330",
+                    "mid": "25301",
+                    "name": "dc14eaki_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:6a:69",
+                    "paket": "6",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 1 Family (до 60 Мбит\/с) ",
+                    "final_balance": false,
+                    "luhn": "253303",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "6",
+                    "email": null,
+                    "mac": "a0:f3:c1:61:d7:4f"
+                }
+            },
+            {
+                "User": {
+                    "id": "25423",
+                    "mid": "1784",
+                    "name": "dc17emur_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:7a:aa",
+                    "paket": "7",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 2 Family (до 80 Мбит\/с)",
+                    "final_balance": false,
+                    "luhn": "254236",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "7",
+                    "email": null,
+                    "mac": ""
+                }
+            },
+            {
+                "User": {
+                    "id": "25512",
+                    "mid": "25487",
+                    "name": "dc18eisa_iptv",
+                    "email": null,
+                    "mac": "1c:a0:ef:d7:3e:0c",
+                    "paket": "6",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 1 Family (до 60 Мбит\/с) ",
+                    "final_balance": false,
+                    "luhn": "255125",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "6",
+                    "email": null,
+                    "mac": "a4:a9:30:fe:22:ff"
+                }
+            },
+            {
+                "User": {
+                    "id": "25994",
+                    "mid": "25993",
+                    "name": "dc24ebab_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:98:c7",
+                    "paket": "7",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 2 Family (до 80 Мбит\/с)",
+                    "final_balance": false,
+                    "luhn": "259949",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "7",
+                    "email": null,
+                    "mac": "40:3f:8c:97:0d:50"
+                }
+            },
+            {
+                "User": {
+                    "id": "26094",
+                    "mid": "1634",
+                    "name": "dc26edor_iptv",
+                    "email": null,
+                    "mac": "1c:a0:ef:d8:34:f6",
+                    "paket": "7",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 2 Family (до 80 Мбит\/с)",
+                    "final_balance": false,
+                    "luhn": "260941",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "7",
+                    "email": null,
+                    "mac": "c8:3a:35:05:86:90"
+                }
+            },
+            {
+                "User": {
+                    "id": "26214",
+                    "mid": "26213",
+                    "name": "dc27edov_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:78:29",
+                    "paket": "882",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "Индивидуальный - CIR 6 Мбит\/с (3000 с)",
+                    "final_balance": false,
+                    "luhn": "262145",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "882",
+                    "email": null,
+                    "mac": "00:1b:22:05:97:9c"
+                }
+            },
+            {
+                "User": {
+                    "id": "26275",
+                    "mid": "26273",
+                    "name": "dc27esas_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:6b:29",
+                    "paket": "7",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 2 Family (до 80 Мбит\/с)",
+                    "final_balance": false,
+                    "luhn": "262752",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "7",
+                    "email": null,
+                    "mac": "c0:65:99:86:8f:b5"
+                }
+            },
+            {
+                "User": {
+                    "id": "26403",
+                    "mid": "10500",
+                    "name": "dc28ekad_iptv",
+                    "email": null,
+                    "mac": "1c:a1:ef:d8:83:85",
+                    "paket": "6",
+                    "lifestream_offer_ids": null,
+                    "internet_packet_name": "iTV Unlim 1 Family (до 60 Мбит\/с) ",
+                    "final_balance": false,
+                    "luhn": "264035",
+                    "address_full": ""
+                },
+                "Main": {
+                    "paket": "6",
+                    "email": null,
+                    "mac": "d4:6e:0e:aa:00:fd"
+                }
+            }
+        ]
+    },
+    "meta": {
+        "status": "ok",
+        "feedback": [],
+        "server": "4e0fe66765ea",
+        "request": {
+            "http_host": "no",
+            "server_addr": "",
+            "remote_addr": "",
+            "server_protocol": "HTTP\/1.1",
+            "request_uri": "",
+            "request_method": "GET",
+            "request_time": 1777032576
+        },
+        "credentials": {
+            "class": "class",
+            "apikey": "test",
+            "username": ""
+        },
+        "time_epoch": "1777032577",
+        "time_local": "Fri, 24 Apr 2026 18:09:37 +0600",
+        "app_version": 201908201235,
+        "debug": 0,
+        "version": "0.3",
+        "model": {
+            "single": "user",
+            "multiple": "users"
+        }
+    },
+    "pagination": {
+        "page": 1,
+        "current": 1000,
+        "count": 1,
+        "prevPage": false,
+        "nextPage": false,
+        "pageCount": 1,
+        "order": null,
+        "limit": 1000,
+        "options": [],
+        "paramType": "named",
+        "queryScope": null
+    }
+}

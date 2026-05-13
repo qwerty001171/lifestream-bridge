@@ -46,7 +46,6 @@ class AccountSyncServiceTest extends TestCase
 
     public function test_updates_existing_accounts_idempotently(): void
     {
-        // Pre-create account
         Account::create([
             'external_id'    => 'ext-1',
             'billing_source' => 'region_a',
@@ -79,7 +78,6 @@ class AccountSyncServiceTest extends TestCase
         $fetcher1 = new BillingFetcher($adapter1);
         $this->service->sync($fetcher1, 'region_a');
 
-        // Run again with same data
         $adapter2 = new FakeBillingAdapter('region_a', [$users]);
         $fetcher2 = new BillingFetcher($adapter2);
         $this->service->sync($fetcher2, 'region_a');
@@ -122,7 +120,6 @@ class AccountSyncServiceTest extends TestCase
 
     public function test_syncs_from_billing_api_nested_user_main_structure(): void
     {
-        // Real billing API returns User/Main nested objects
         $adapter = new FakeBillingAdapter('region_a', [[
             [
                 'User' => [
@@ -148,22 +145,20 @@ class AccountSyncServiceTest extends TestCase
 
         $this->assertSame(1, $result['synced']);
 
-        // External ID should be User.mid (> 0)
         $this->assertDatabaseHas('accounts', [
             'external_id'    => '10406',
             'billing_source' => 'region_a',
             'login'          => 'jn03ekud_iptv',
             'email'          => 'user@example.com',
-            'paket'          => '6', // Main.paket takes precedence
+            'paket'          => '6',
         ]);
 
         $account = Account::where('external_id', '10406')->first();
         $this->assertSame(1, $account->devices()->count());
     }
 
-    public function test_region_isolation(): void
+    public function test_source_isolation(): void
     {
-        // Same external_id in different regions should create separate accounts
         $adapterA = new FakeBillingAdapter('region_a', [[
             ['id' => 'ext-1', 'login' => 'user_a'],
         ]]);

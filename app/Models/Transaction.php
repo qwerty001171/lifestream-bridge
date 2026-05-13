@@ -24,7 +24,6 @@ class Transaction extends Model
 
     protected $fillable = [
         'account_uuid',
-        'billing_source',
         'lifestream_offer_id',
         'old_offer_id',
         'operation_type',

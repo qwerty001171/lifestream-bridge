@@ -8,9 +8,9 @@ use Throwable;
 
 class SyncLifestreamCommand extends Command
 {
-    protected $signature = 'lifestream:sync {region : The billing region to sync to Lifestream}';
+    protected $signature = 'lifestream:sync {source : The billing source to sync to Lifestream}';
 
-    protected $description = 'Sync local accounts to the Lifestream IPTV platform for a specific region';
+    protected $description = 'Sync local accounts to the Lifestream IPTV platform for a specific source';
 
     public function __construct(
         private readonly LifestreamSyncService $syncService
@@ -20,12 +20,12 @@ class SyncLifestreamCommand extends Command
 
     public function handle(): int
     {
-        $region = $this->argument('region');
+        $source = $this->argument('source');
 
-        $this->info("Starting Lifestream sync for region: {$region}");
+        $this->info("Starting Lifestream sync for source: {$source}");
 
         try {
-            $result = $this->syncService->syncRegion($region);
+            $result = $this->syncService->syncSource($source);
 
             $this->info(
                 "Lifestream sync completed: " .

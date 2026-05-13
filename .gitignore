@@ -19,6 +19,7 @@ yarn-error.log
 **/.DS_Store
 Thumbs.db
 /bootstrap/cache/*.php
+/app/Lifestream/
 /storage/logs/*
 /storage/framework/cache/*
 /storage/framework/sessions/*
@@ -30,7 +31,6 @@ Thumbs.db
 rr
 *.rr.pid
 openapi.yaml
-billing-mock/request.json
 docker-compose.override.yml
 /coverage/
 /coverage-html/

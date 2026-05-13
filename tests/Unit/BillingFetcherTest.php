@@ -84,12 +84,12 @@ class BillingFetcherTest extends TestCase
         $this->assertCount(0, $fetched);
     }
 
-    public function test_fetcher_returns_correct_region(): void
+    public function test_fetcher_returns_correct_source(): void
     {
         $adapter = new FakeBillingAdapter('region_b', []);
         $fetcher = new BillingFetcher($adapter);
 
-        $this->assertSame('region_b', $fetcher->getAdapter()->getRegion());
+        $this->assertSame('region_b', $fetcher->getAdapter()->getSource());
     }
 
     public function test_pagination_calls_adapter_correct_number_of_times(): void

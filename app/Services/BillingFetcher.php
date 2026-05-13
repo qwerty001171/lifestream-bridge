@@ -18,16 +18,15 @@ class BillingFetcher
         $page  = 1;
         $total = 0;
 
-        do {
+        while (true) {
             Log::debug('BillingFetcher: fetching page', [
-                'region' => $this->adapter->getRegion(),
+                'source' => $this->adapter->getSource(),
                 'page'   => $page,
                 'limit'  => $this->limit,
             ]);
 
             $response = $this->adapter->getUsers($page, $this->limit);
-
-            $users = $response['data']['users'] ?? [];
+            $users    = $response['data']['users'] ?? [];
 
             foreach ($users as $user) {
                 $total++;
@@ -36,11 +35,16 @@ class BillingFetcher
 
             $pagination = $response['pagination'] ?? [];
             $hasNext    = (bool) ($pagination['nextPage'] ?? $pagination['next_page'] ?? false);
+
+            if (!$hasNext) {
+                break;
+            }
+
             $page++;
-        } while ($hasNext);
+        }
 
         Log::debug('BillingFetcher: completed', [
-            'region' => $this->adapter->getRegion(),
+            'source' => $this->adapter->getSource(),
             'total'  => $total,
         ]);
     }

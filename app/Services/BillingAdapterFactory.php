@@ -9,30 +9,30 @@ use InvalidArgumentException;
 class BillingAdapterFactory
 {
     public function __construct(
-        private readonly array $regionsConfig
+        private readonly array $sourcesConfig
     ) {}
 
-    public function make(string $region): BillingAdapterInterface
+    public function make(string $source): BillingAdapterInterface
     {
-        if (!isset($this->regionsConfig[$region])) {
+        if (!isset($this->sourcesConfig[$source])) {
             throw new InvalidArgumentException(
-                "Billing region '{$region}' is not configured. " .
-                "Available regions: " . implode(', ', array_keys($this->regionsConfig))
+                "Billing source '{$source}' is not configured. " .
+                "Available sources: " . implode(', ', array_keys($this->sourcesConfig))
             );
         }
 
-        $config = $this->regionsConfig[$region];
+        $config = $this->sourcesConfig[$source];
 
         return new HttpBillingAdapter(
-            region:  $region,
+            source:  $source,
             baseUrl: $config['base_url'],
             apiKey:  $config['api_key'],
             timeout: $config['timeout'] ?? 30,
         );
     }
 
-    public function availableRegions(): array
+    public function availableSources(): array
     {
-        return array_keys($this->regionsConfig);
+        return array_keys($this->sourcesConfig);
     }
 }

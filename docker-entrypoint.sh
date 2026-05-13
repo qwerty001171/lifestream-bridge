@@ -1,13 +1,13 @@
 #!/bin/sh
 set -e
 
-# Generate APP_KEY only if not set (first-time setup)
 if [ -z "$APP_KEY" ]; then
-    php artisan key:generate --force
+    echo "ERROR: APP_KEY is not set. Aborting startup." >&2
+    exit 1
 fi
 
-# Run database migrations
-php artisan migrate --force
+if [ "${MIGRATE_ON_STARTUP:-false}" = "true" ]; then
+    php artisan migrate --force
+fi
 
-# Start RoadRunner
 exec /usr/local/bin/rr serve -c .rr.yaml

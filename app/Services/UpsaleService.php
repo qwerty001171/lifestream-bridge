@@ -78,8 +78,7 @@ class UpsaleService
             }
 
             $transaction = Transaction::create([
-                'account_uuid'          => $account->uuid,
-                'billing_source'      => $account->billing_source,
+                'account_uuid'        => $account->uuid,
                 'lifestream_offer_id' => $newOfferId,
                 'old_offer_id'        => $oldOfferId,
                 'operation_type'      => $operationType,
@@ -121,36 +120,42 @@ class UpsaleService
         ?string $ip = null,
         ?string $userAgent = null
     ): array {
+        $serviceStart = $serviceStartTimestamp
+            ? now()->parse($serviceStartTimestamp)
+            : now();
+
         return DB::transaction(function () use (
-            $billingTransactionId, $qsTransactionId, $serviceStartTimestamp, $context, $ip, $userAgent
+            $billingTransactionId, $qsTransactionId, $context, $ip, $userAgent, $serviceStart
         ): array {
-            $transaction = Transaction::whereKey($billingTransactionId)
-                ->lockForUpdate()
-                ->firstOrFail();
+            $affected = Transaction::whereKey($billingTransactionId)
+                ->where('phase', Transaction::PHASE_ENSURE)
+                ->update([
+                    'phase'                   => Transaction::PHASE_COMMITTED,
+                    'service_start_timestamp' => $serviceStart,
+                    'commit_payload'          => $context ?: null,
+                    'committed_at'            => now(),
+                ]);
 
-            if ($transaction->isCommitted()) {
-                return [
-                    'result'                => self::RESULT_OPERATION_COMMITED,
-                    'billingTransactionId'  => $transaction->uuid,
-                    'billingStartTimestamp' => $transaction->committed_at?->toRfc3339String(),
-                ];
-            }
+            $transaction = Transaction::findOrFail($billingTransactionId);
 
-            if ($transaction->isFailed()) {
+            if ($affected === 0) {
+                if ($transaction->isCommitted()) {
+                    return [
+                        'result'                => self::RESULT_OPERATION_COMMITED,
+                        'billingTransactionId'  => $transaction->uuid,
+                        'billingStartTimestamp' => $transaction->committed_at?->toRfc3339String(),
+                    ];
+                }
+
                 throw new RuntimeException(
                     "Transaction {$billingTransactionId} is in failed state and cannot be committed."
                 );
             }
 
-            $serviceStart = $serviceStartTimestamp
-                ? now()->parse($serviceStartTimestamp)
-                : now();
-
             if ($transaction->operation_type === Transaction::OPERATION_REPLACE_SUBSCRIPTION
                 && $transaction->old_offer_id !== null
             ) {
                 Subscription::where('account_uuid', $transaction->account_uuid)
-                    ->where('billing_source', $transaction->billing_source)
                     ->where('lifestream_offer_id', $transaction->old_offer_id)
                     ->where('status', Subscription::STATUS_ACTIVE)
                     ->update(['status' => Subscription::STATUS_INACTIVE]);
@@ -158,8 +163,7 @@ class UpsaleService
 
             Subscription::updateOrCreate(
                 [
-                    'account_uuid'          => $transaction->account_uuid,
-                    'billing_source'      => $transaction->billing_source,
+                    'account_uuid'        => $transaction->account_uuid,
                     'lifestream_offer_id' => $transaction->lifestream_offer_id,
                 ],
                 [
@@ -169,18 +173,11 @@ class UpsaleService
                 ]
             );
 
-            $transaction->update([
-                'phase'                   => Transaction::PHASE_COMMITTED,
-                'service_start_timestamp' => $serviceStart,
-                'commit_payload'          => $context ?: null,
-                'committed_at'            => now(),
-            ]);
-
             $this->logger->log(
                 operationType: OperationLog::TYPE_UPSALE_COMMIT,
                 result:        OperationLog::RESULT_SUCCESS,
                 accountId:     $transaction->account_uuid,
-                billingSource: $transaction->billing_source,
+                billingSource: $transaction->account->billing_source,
                 data: [
                     'transaction_id'    => $billingTransactionId,
                     'qs_transaction_id' => $qsTransactionId,
@@ -193,7 +190,7 @@ class UpsaleService
             return [
                 'result'                => self::RESULT_OPERATION_COMMITED,
                 'billingTransactionId'  => $transaction->uuid,
-                'billingStartTimestamp' => $transaction->fresh()->committed_at?->toRfc3339String(),
+                'billingStartTimestamp' => $transaction->committed_at?->toRfc3339String(),
             ];
         });
     }
@@ -208,7 +205,7 @@ class UpsaleService
             operationType: OperationLog::TYPE_UPSALE_COMMIT,
             result:        OperationLog::RESULT_FAILED,
             accountId:     $transaction->account_uuid,
-            billingSource: $transaction->billing_source,
+            billingSource: $transaction->account->billing_source,
             data:          ['transaction_id' => $billingTransactionId],
             errorMessage:  $reason
         );
