@@ -23,7 +23,6 @@ class LifestreamClientAdapter implements LifestreamClientInterface
         private readonly string $baseUrl,
         private readonly int $timeout = 30,
         private readonly int $retries = 3,
-        private readonly int $rateLimit = 10,
     ) {}
 
     private function client(): Client

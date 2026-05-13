@@ -16,9 +16,10 @@ services:
     volumes:
       - .:/app
       - /app/vendor
+      - /app/app/Lifestream
       - storage_data:/app/storage
     depends_on:
-      mysql_new:
+      mysql:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -35,30 +36,9 @@ services:
       MYSQL_PASSWORD: secret
       MYSQL_ROOT_PASSWORD: rootsecret
     ports:
-      - "3307:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - billing-net
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "billing", "-psecret"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  mysql_new:
-    image: mysql:8.0
-    container_name: lifestream-bridge-mysql-new
-    restart: unless-stopped
-    environment:
-      MYSQL_DATABASE: billing_service
-      MYSQL_USER: billing
-      MYSQL_PASSWORD: secret
-      MYSQL_ROOT_PASSWORD: rootsecret
-    ports:
       - "3306:3306"
     volumes:
-      - mysql_data_new:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     networks:
       - billing-net
     healthcheck:
@@ -101,7 +81,6 @@ services:
 
 volumes:
   mysql_data:
-  mysql_data_new:
   redis_data:
   storage_data:
 

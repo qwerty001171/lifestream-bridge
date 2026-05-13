@@ -15,7 +15,10 @@
         "php-http/client-common": "*",
         "php-http/discovery": "*",
         "spiral/roadrunner-cli": "^2.6",
-        "spiral/roadrunner-http": "^3.3"
+        "spiral/roadrunner-http": "^3.3",
+        "symfony/options-resolver": "^7.0",
+        "symfony/serializer": "^7.0",
+        "symfony/validator": "^7.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.21",

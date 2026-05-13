@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Services\PasswordSyncService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Throwable;
 
 class SyncPasswordsCommand extends Command
@@ -21,6 +22,13 @@ class SyncPasswordsCommand extends Command
     public function handle(): int
     {
         $source = $this->argument('source');
+        $ttl    = config('billing.sync_lock_ttl', 300);
+        $lock   = Cache::lock("billing:sync-passwords:{$source}", $ttl);
+
+        if (!$lock->get()) {
+            $this->info("Password sync for {$source} is already running. Skipping.");
+            return self::SUCCESS;
+        }
 
         $this->info("Starting password sync for source: {$source}");
 
@@ -37,6 +45,8 @@ class SyncPasswordsCommand extends Command
             $this->error("Password sync failed: " . $e->getMessage());
 
             return self::FAILURE;
+        } finally {
+            $lock->release();
         }
     }
 }

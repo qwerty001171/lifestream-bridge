@@ -43,7 +43,7 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interactio
 COPY . .
 COPY --from=codegen /app/app/Lifestream ./app/Lifestream
 
-RUN composer dump-autoload --optimize --no-dev
+RUN composer dump-autoload --optimize --no-dev --no-scripts
 
 FROM base AS production
 

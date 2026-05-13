@@ -12,40 +12,19 @@ use Laravel\Octane\Events\WorkerErrorOccurred;
 use Laravel\Octane\Events\WorkerStarting;
 use Laravel\Octane\Events\WorkerStopping;
 use Laravel\Octane\Listeners\CloseMonologHandlers;
-use Laravel\Octane\Listeners\CollectGarbage;
-use Laravel\Octane\Listeners\DisconnectFromDatabases;
 use Laravel\Octane\Listeners\EnsureUploadedFilesAreValid;
 use Laravel\Octane\Listeners\EnsureUploadedFilesCanBeMoved;
 use Laravel\Octane\Listeners\FlushOnce;
 use Laravel\Octane\Listeners\FlushTemporaryContainerInstances;
-use Laravel\Octane\Listeners\FlushUploadedFiles;
 use Laravel\Octane\Listeners\ReportException;
 use Laravel\Octane\Listeners\StopWorkerIfNecessary;
 use Laravel\Octane\Octane;
 
 return [
 
-    /*
-    |--------------------------------------------------------------------------
-    | Octane Server
-    |--------------------------------------------------------------------------
-    */
-
     'server' => env('OCTANE_SERVER', 'roadrunner'),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Force HTTPS
-    |--------------------------------------------------------------------------
-    */
-
     'https' => env('OCTANE_HTTPS', false),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Octane Listeners
-    |--------------------------------------------------------------------------
-    */
 
     'listeners' => [
         WorkerStarting::class => [
@@ -55,41 +34,32 @@ return [
 
         RequestReceived::class => [
             ...Octane::prepareApplicationForNextOperation(),
-            ...Octane::prepareApplicationForNextRequest(),
-            //
+            ...Octane::prepareApplicationForNextRequest()
         ],
 
         RequestHandled::class => [
-            //
         ],
 
         RequestTerminated::class => [
-            // FlushUploadedFiles::class,
         ],
 
         TaskReceived::class => [
             ...Octane::prepareApplicationForNextOperation(),
-            //
         ],
 
         TaskTerminated::class => [
-            //
         ],
 
         TickReceived::class => [
             ...Octane::prepareApplicationForNextOperation(),
-            //
         ],
 
         TickTerminated::class => [
-            //
         ],
 
         OperationTerminated::class => [
             FlushOnce::class,
             FlushTemporaryContainerInstances::class,
-            // DisconnectFromDatabases::class,
-            // CollectGarbage::class,
         ],
 
         WorkerErrorOccurred::class => [
@@ -102,12 +72,6 @@ return [
         ],
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Warm / Flush Bindings
-    |--------------------------------------------------------------------------
-    */
-
     'warm' => [
         ...Octane::defaultServicesToWarm(),
     ],
@@ -116,12 +80,6 @@ return [
         //
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Octane Swoole Tables
-    |--------------------------------------------------------------------------
-    */
-
     'tables' => [
         'example:1000' => [
             'name' => 'string:1000',
@@ -129,22 +87,10 @@ return [
         ],
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Octane Swoole Cache Table
-    |--------------------------------------------------------------------------
-    */
-
     'cache' => [
         'rows' => 1000,
         'bytes' => 10000,
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | File Watching
-    |--------------------------------------------------------------------------
-    */
 
     'watch' => [
         'app',
@@ -158,19 +104,7 @@ return [
         '.env',
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Garbage Collection Threshold
-    |--------------------------------------------------------------------------
-    */
-
     'garbage' => 50,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Maximum Execution Time
-    |--------------------------------------------------------------------------
-    */
 
     'max_execution_time' => 30,
 ];

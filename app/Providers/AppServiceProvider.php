@@ -20,10 +20,9 @@ class AppServiceProvider extends ServiceProvider
             $config = config('lifestream');
 
             return new LifestreamClientAdapter(
-                baseUrl:   $config['base_url'],
-                timeout:   $config['timeout'] ?? 30,
-                retries:   $config['retries'] ?? 3,
-                rateLimit: $config['rate_limit'] ?? 10,
+                baseUrl:  $config['base_url'],
+                timeout:  $config['timeout'] ?? 30,
+                retries:  $config['retries'] ?? 3,
             );
         });
 
@@ -47,9 +46,6 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(OperationLogger::class);
 
-        if ($this->app->environment('local') && class_exists(\Laravel\Boost\BoostServiceProvider::class)) {
-            $this->app->register(\Laravel\Boost\BoostServiceProvider::class);
-        }
     }
 
     public function boot(): void

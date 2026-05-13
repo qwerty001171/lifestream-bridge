@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Services\LifestreamSyncService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Throwable;
 
 class SyncLifestreamCommand extends Command
@@ -21,6 +22,13 @@ class SyncLifestreamCommand extends Command
     public function handle(): int
     {
         $source = $this->argument('source');
+        $ttl    = config('billing.sync_lock_ttl', 300);
+        $lock   = Cache::lock("lifestream:sync:{$source}", $ttl);
+
+        if (!$lock->get()) {
+            $this->info("Lifestream sync for {$source} is already running. Skipping.");
+            return self::SUCCESS;
+        }
 
         $this->info("Starting Lifestream sync for source: {$source}");
 
@@ -37,6 +45,8 @@ class SyncLifestreamCommand extends Command
             $this->error("Lifestream sync failed: " . $e->getMessage());
 
             return self::FAILURE;
+        } finally {
+            $lock->release();
         }
     }
 }

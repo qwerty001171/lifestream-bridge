@@ -6,6 +6,7 @@ use App\Services\AccountSyncService;
 use App\Services\BillingAdapterFactory;
 use App\Services\BillingFetcher;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Throwable;
 
 class SyncBillingCommand extends Command
@@ -24,6 +25,13 @@ class SyncBillingCommand extends Command
     public function handle(): int
     {
         $source = $this->argument('source');
+        $ttl    = config('billing.sync_lock_ttl', 300);
+        $lock   = Cache::lock("billing:sync:{$source}", $ttl);
+
+        if (!$lock->get()) {
+            $this->info("Billing sync for {$source} is already running. Skipping.");
+            return self::SUCCESS;
+        }
 
         $this->info("Starting billing sync for source: {$source}");
 
@@ -43,6 +51,8 @@ class SyncBillingCommand extends Command
             $this->error("Sync failed: " . $e->getMessage());
 
             return self::FAILURE;
+        } finally {
+            $lock->release();
         }
     }
 }
