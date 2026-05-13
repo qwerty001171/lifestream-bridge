@@ -84,6 +84,26 @@ class BillingFetcherTest extends TestCase
         $this->assertCount(0, $fetched);
     }
 
+    public function test_stops_at_max_pages_to_prevent_infinite_loop(): void
+    {
+        $infiniteAdapter = new class('region_a') extends FakeBillingAdapter {
+            public function getUsers(int $page = 1, int $limit = 1000): array
+            {
+                return [
+                    'data'       => ['users' => [['external_id' => $page, 'login' => "user{$page}"]]],
+                    'pagination' => ['nextPage' => true],
+                ];
+            }
+        };
+
+        $fetcher = new BillingFetcher($infiniteAdapter, 1000, 3);
+        $fetched = iterator_to_array($fetcher->fetchAll(), false);
+
+        $this->assertCount(3, $fetched);
+        $this->assertSame('user1', $fetched[0]['login']);
+        $this->assertSame('user3', $fetched[2]['login']);
+    }
+
     public function test_fetcher_returns_correct_source(): void
     {
         $adapter = new FakeBillingAdapter('region_b', []);

@@ -10,7 +10,8 @@ class BillingFetcher
 {
     public function __construct(
         private readonly BillingAdapterInterface $adapter,
-        private readonly int $limit = 1000
+        private readonly int $limit = 1000,
+        private readonly int $maxPages = 5000
     ) {}
 
     public function fetchAll(): Generator
@@ -37,6 +38,15 @@ class BillingFetcher
             $hasNext    = (bool) ($pagination['nextPage'] ?? $pagination['next_page'] ?? false);
 
             if (!$hasNext) {
+                break;
+            }
+
+            if ($page >= $this->maxPages) {
+                Log::warning('BillingFetcher: reached max pages limit, stopping pagination', [
+                    'source'   => $this->adapter->getSource(),
+                    'maxPages' => $this->maxPages,
+                    'total'    => $total,
+                ]);
                 break;
             }
 

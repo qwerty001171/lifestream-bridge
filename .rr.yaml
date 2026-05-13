@@ -20,14 +20,6 @@ jobs:
   pool:
     num_workers: 2
 
-cron:
-  - every: "5m"
-    command: "php artisan billing:sync-all"
-  - every: "10m"
-    command: "php artisan lifestream:sync-all"
-  - every: "15m"
-    command: "php artisan billing:sync-passwords-all"
-
 logs:
   mode: production
   level: warn

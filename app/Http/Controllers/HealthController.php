@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class HealthController extends Controller
@@ -28,16 +29,19 @@ class HealthController extends Controller
      */
     public function __invoke(): JsonResponse
     {
-        $dbOk = $this->checkDatabase();
+        $dbOk    = $this->checkDatabase();
+        $cacheOk = $this->checkCache();
 
-        $status = $dbOk ? 'ok' : 'degraded';
-        $code   = $dbOk ? 200 : 503;
+        $healthy = $dbOk && $cacheOk;
+        $status  = $healthy ? 'ok' : 'degraded';
+        $code    = $healthy ? 200 : 503;
 
         return response()->json([
             'status'    => $status,
             'timestamp' => now()->toISOString(),
             'checks'    => [
-                'database' => $dbOk ? 'ok' : 'failed',
+                'database' => $dbOk    ? 'ok' : 'failed',
+                'cache'    => $cacheOk ? 'ok' : 'failed',
             ],
         ], $code);
     }
@@ -46,6 +50,17 @@ class HealthController extends Controller
     {
         try {
             DB::connection()->getPdo();
+
+            return true;
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    private function checkCache(): bool
+    {
+        try {
+            Cache::put('health:ping', true, 5);
 
             return true;
         } catch (\Throwable) {

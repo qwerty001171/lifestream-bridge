@@ -37,7 +37,7 @@ class SyncBillingCommand extends Command
 
         try {
             $adapter = $this->factory->make($source);
-            $fetcher = new BillingFetcher($adapter, config('billing.page_limit', 1000));
+            $fetcher = new BillingFetcher($adapter, config('billing.page_limit', 1000), config('billing.max_pages', 5000));
             $result  = $this->syncService->sync($fetcher, $source);
 
             $this->info("Sync completed: {$result['synced']} synced, {$result['failed']} failed.");

@@ -17,10 +17,11 @@ class HealthTest extends TestCase
             ->assertJsonStructure([
                 'status',
                 'timestamp',
-                'checks' => ['database'],
+                'checks' => ['database', 'cache'],
             ])
             ->assertJsonPath('status', 'ok')
-            ->assertJsonPath('checks.database', 'ok');
+            ->assertJsonPath('checks.database', 'ok')
+            ->assertJsonPath('checks.cache', 'ok');
     }
 
     public function test_health_response_contains_valid_timestamp(): void

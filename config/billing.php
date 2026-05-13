@@ -17,6 +17,8 @@ return [
 
     'page_limit' => (int) env('BILLING_PAGE_LIMIT', 1000),
 
+    'max_pages' => (int) env('BILLING_MAX_PAGES', 5000),
+
     'sync_lock_ttl' => (int) env('BILLING_SYNC_LOCK_TTL', 300),
 
     'adapter' => env('BILLING_ADAPTER', \App\Adapters\HttpBillingAdapter::class),

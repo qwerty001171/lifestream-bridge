@@ -87,7 +87,11 @@ class UpsaleController extends Controller
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException) {
             return response()->json(['error' => 'Transaction not found'], 404);
         } catch (\RuntimeException $e) {
-            return response()->json(['error' => $e->getMessage()], 409);
+            Log::warning('UpsaleController: transaction in invalid state', [
+                'message' => $e->getMessage(),
+            ]);
+
+            return response()->json(['error' => 'Transaction is in an invalid state'], 409);
         } catch (Throwable $e) {
             return $this->errorResponse($e);
         }
@@ -163,7 +167,11 @@ class UpsaleController extends Controller
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException) {
             return response()->json(['error' => 'Transaction not found'], 404);
         } catch (\RuntimeException $e) {
-            return response()->json(['error' => $e->getMessage()], 409);
+            Log::warning('UpsaleController: transaction in invalid state', [
+                'message' => $e->getMessage(),
+            ]);
+
+            return response()->json(['error' => 'Transaction is in an invalid state'], 409);
         } catch (Throwable $e) {
             return $this->errorResponse($e);
         }
